@@ -24,7 +24,7 @@ for file in Path(dir).rglob('*.csv'):
     df.columns = ['Time', 'Player', 'Goal', 'Position']
     names = list(df['Player'].unique())
     if len(names) == 1:
-            print(f"Match corresponding to file {file} only has one player marking goals. Please type the other player's name.") #TODO need to have var filename somewhere
+            print(f"Match corresponding to file {file} only has one player marking goals. Please type the other player's name.")
             otherplayer = input()
             names.append(otherplayer) #if loser of match doesnt hit a single goal
     
