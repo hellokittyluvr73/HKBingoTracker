@@ -33,6 +33,7 @@ for file in Path(dir).rglob('*.csv'):
     #now we also want to find who won the match
     player1 = names[0]
     player2 = names[1]
+    otherplayer = []
     def score(x): #score for a given square
         if x in df['Position'].values:
             if df.loc[(df['Position'] == x), 'Player'].iloc[0] == player1:
