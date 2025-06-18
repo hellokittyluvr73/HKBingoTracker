@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 import os
-dir = 'C://HKBingoTracker//statsAnalyzer'
+dir = 'C://HKBingoTracker'
 playerList = []
 row1 = range(1, 6)
 row2 = range(6, 11)
@@ -19,8 +19,8 @@ bltr = range(5, 22, 4)
 
 
 overall = pd.DataFrame(columns = ["name", "FirstBlood", "GoalsMarked", "GoalsLost", "WinsByLine", "LossesByLine", "WinsByMajority", "LossesByMajority", "WinLoss", "Comeback", "Choke"])
-for file in Path(dir).rglob('*.txt'):
-    df = pd.read_csv(file, header=None)
+for file in Path(dir).rglob('*.csv'):
+    df = pd.read_csv(file, sep = ',', header=None, skiprows=1)
     df.columns = ['Time', 'Player', 'Goal', 'Position']
     names = list(df['Player'].unique())
     if len(names) == 1:
@@ -41,18 +41,6 @@ for file in Path(dir).rglob('*.txt'):
                    return(-1)
         else:
              return(0)
-    row1 = range(1, 6)
-    row2 = range(6, 11)
-    row3 = range(11, 16)
-    row4 = range(16, 21)
-    row5 = range(21, 26)
-    column1 = range(1, 23, 5)
-    column2 = range(2, 24, 5)
-    column3 = range(3, 25, 5)
-    column4 = range(4, 26, 5)
-    column5 = range(5, 27, 5)
-    tlbr = range(1, 26, 6)
-    bltr = range(5, 22, 4)
     def linescore(line):
             value = 0
             for x in line:
@@ -103,7 +91,7 @@ for file in Path(dir).rglob('*.txt'):
              choke = 1
         else:
              choke = 0
-        newrow = pd.DataFrame([[name, int(firstBlood == name), hits, goalsLost, int(winner == name), int(winner != name), int(majoritywinner == name), int(majoritywinner != name), winloss, comeback, choke]], 
+        newrow = pd.DataFrame([[name, int(firstBlood == name), hits, goalsLost, int(winner == name), int(winner != name and winner in names), int(majoritywinner == name), int(majoritywinner != name and majoritywinner in names), winloss, comeback, choke]], 
                               columns=["name", "FirstBlood", "GoalsMarked", "GoalsLost", "WinsByLine", "LossesByLine", "WinsByMajority", "LossesByMajority", "WinLoss", "Comeback", "Choke"])
         overall = pd.concat([overall, newrow], ignore_index=True) #one row per player per match
               #end loop
@@ -116,5 +104,5 @@ for user in playerList:
 
 grouped['Matches Played'] = matchesplayed
 grouped['GoalsPerGame'] = grouped['GoalsMarked'] / grouped['Matches Played']
-grouped['K/D'] = grouped['GoalsMarked'] / grouped['GoalsLost']
+grouped['K/D'] = grouped['GoalsMarked'] / grouped['GoalsLost'].replace(0, 1)
 print(grouped)

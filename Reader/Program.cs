@@ -10,7 +10,7 @@ public class Program
     BingoGame game = new BingoGame();
     game.Init();
     await game.JoinBingoSyncRoom();
-    string path = @"C://Bingo//match.txt";
+    string path = @"C://HKBingoTracker//match.csv";
     string now = DateTime.Now.ToString("hh:mm:ss");
     File.WriteAllText(path, now + Environment.NewLine);
     Console.WriteLine("Press enter to close program");
@@ -77,7 +77,7 @@ public class BingoGame
           changedSquareOnBoard = result;
         playerWhoMarked = message.player.name;
         goalMarked = message.square.name;
-        string path = @"C://Bingo//match.txt";
+        string path = @"C://HKBingoTracker//match.csv";
         string now = DateTime.Now.ToString("hh:mm:ss");
         if (!File.Exists(path))
         {
