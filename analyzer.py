@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 import os
-dir = 'C://Bingo//statsAnalyzer'
+dir = 'C://HKBingoTracker//statsAnalyzer'
 playerList = []
 row1 = range(1, 6)
 row2 = range(6, 11)
