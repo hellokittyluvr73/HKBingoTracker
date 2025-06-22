@@ -10,9 +10,8 @@ public class Program
     BingoGame game = new BingoGame();
     game.Init();
     await game.JoinBingoSyncRoom();
-    string path = @"C://HKBingoTracker//match.csv";
-    string now = DateTime.Now.ToString("hh:mm:ss");
-    File.WriteAllText(path, now + Environment.NewLine);
+
+    
     Console.WriteLine("Press enter to close program");
     Console.ReadLine();
   }
@@ -26,7 +25,6 @@ public class BingoGame
   {
     bingoSync.OnMessageReceived += OnRoomEvent;
   }
-
 
   public async Task JoinBingoSyncRoom()
   {
@@ -56,6 +54,11 @@ public class BingoGame
     {
       Console.WriteLine("Failed to connect.");
     }
+    Console.WriteLine("Press enter when match begins to start timing");
+    string path = @"C://HKBingoTracker//match.csv";
+    string now = DateTime.Now.ToString("hh:mm:ss");
+    File.WriteAllText(path, now + Environment.NewLine);
+    Console.ReadLine();
 
     
   }

@@ -18,20 +18,19 @@ bltr = range(5, 22, 4)
 #victory conditions
 
 
-overall = pd.DataFrame(columns = ["name", "FirstBlood", "GoalsMarked", "GoalsLost", "WinsByLine", "LossesByLine", "WinsByMajority", "LossesByMajority", "WinLoss", "Comeback", "Choke"])
+overall = pd.DataFrame(columns = ["name", "FirstBlood", "GoalsMarked", "GoalsLost", "WinsByLine", "LossesByLine", "WinsByMajority", "LossesByMajority", "WinLoss", "Comeback", "Choke", "TimePlayed", "AvgTTFG"])
 for file in Path(dir).rglob('*.csv'):
     df = pd.read_csv(file, sep = ',', header=None, skiprows=1)
+    starttime = pd.read_csv(file, rows=1, header=None, index=False)
+    starttimestring = starttime.to_string()
     df.columns = ['Time', 'Player', 'Goal', 'Position']
     names = list(df['Player'].unique())
     if len(names) == 1:
             print(f"Match corresponding to file {file} only has one player marking goals. Please type the other player's name.")
             otherplayer = input()
             names.append(otherplayer) #if loser of match doesnt hit a single goal
-    
-
-
-    #now we also want to find who won the match
-    player1 = names[0]
+     #now we also want to find who won the match
+    player1 = names[0]  
     player2 = names[1]
     otherplayer = []
     def score(x): #score for a given square
@@ -74,12 +73,18 @@ for file in Path(dir).rglob('*.csv'):
            playerList.append(name)
         #contributes to playerList
     firstBlood = df['Player'][0] #first to mark a goal
+    timePlayed = df['Time'].iloc[-1] - starttimestring
     for name in names:
         if name == otherplayer:
             hits = 0    
         else: 
             hits = int(df['Player'].value_counts().get(name))
         goalsLost = goalsmarked - hits
+        if name == otherplayer:
+             firstMarkTime = None
+        else:
+             mymarks = df.loc[df['Player']==name]
+             firstMarkTime = df['Time'][0]
         if winner == name or majoritywinner == name:
              winloss = 1
         else:
@@ -92,8 +97,9 @@ for file in Path(dir).rglob('*.csv'):
              choke = 1
         else:
              choke = 0
-        newrow = pd.DataFrame([[name, int(firstBlood == name), hits, goalsLost, int(winner == name), int(winner != name and winner in names), int(majoritywinner == name), int(majoritywinner != name and majoritywinner in names), winloss, comeback, choke]], 
-                              columns=["name", "FirstBlood", "GoalsMarked", "GoalsLost", "WinsByLine", "LossesByLine", "WinsByMajority", "LossesByMajority", "WinLoss", "Comeback", "Choke"])
+        newrow = pd.DataFrame([[name, int(firstBlood == name), hits, goalsLost, int(winner == name), int(winner != name and winner in names), int(majoritywinner == name), int(majoritywinner != name and majoritywinner in names),
+                                 winloss, comeback, choke, timePlayed, firstMarkTime]], 
+                              columns=["name", "FirstBlood", "GoalsMarked", "GoalsLost", "WinsByLine", "LossesByLine", "WinsByMajority", "LossesByMajority", "WinLoss", "Comeback", "Choke", "TimePlayed", "FirstMarkTime"])
         overall = pd.concat([overall, newrow], ignore_index=True) #one row per player per match
               #end loop
 
@@ -106,4 +112,10 @@ for user in playerList:
 grouped['Matches Played'] = matchesplayed
 grouped['GoalsPerGame'] = grouped['GoalsMarked'] / grouped['Matches Played']
 grouped['K/D'] = grouped['GoalsMarked'] / grouped['GoalsLost'].replace(0, 1)
+grouped['Time To First Goal'] = grouped['FirstMarkTime']/grouped['Matches Played']
 print(grouped)
+
+print("Save file?")
+answer = input()
+if answer == "yes":
+     grouped.to_csv('statsheet.csv', index=True)
