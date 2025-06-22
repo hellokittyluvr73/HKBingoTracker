@@ -2,7 +2,8 @@ import pandas as pd
 from pathlib import Path
 import os
 from datetime import datetime, date
-dir = 'C://HKBingoTracker'
+import glob
+dir = os.path.dirname(os.path.abspath(__file__))
 playerList = []
 row1 = range(1, 6)
 row2 = range(6, 11)
@@ -22,9 +23,11 @@ bltr = range(5, 22, 4)
 overall = pd.DataFrame(columns = ["name", "FirstBlood", "GoalsMarked", "GoalsLost", "WinsByLine", "LossesByLine", "WinsByMajority", "LossesByMajority", "WinLoss", "Comeback", "Choke", "TimePlayed", "AvgTTFG"])
 for file in Path(dir).rglob('*.csv'):
     df = pd.read_csv(file, sep = ',', header=None, skiprows=1)
-    starttime = pd.read_csv(file, nrows=1, header=None)
+    starttime = pd.read_csv(file, sep = ',', nrows=1, header=None)
     starttimestring = starttime.iloc[0][0]
     start = datetime.strptime(starttimestring.strip(), '%H:%M:%S').time()
+    print(starttimestring)
+
     df.columns = ['Time', 'Player', 'Goal', 'Position']
     names = list(df['Player'].unique())
     if len(names) == 1:

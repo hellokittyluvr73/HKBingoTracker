@@ -56,12 +56,12 @@ public class BingoGame
     }
     Console.WriteLine("Press enter when match begins to start timing");
     string now = DateTime.Now.ToString("hh:mm:ss");
-    string path = @"C://HKBingoTracker";
-    if (!Directory.Exists(path))
-    {
-      Directory.CreateDirectory(path);
-    }
-    File.WriteAllText(path + "/" + ID + ".csv", now + Environment.NewLine);
+    //string path = @"C://HKBingoTracker";
+    //if (!Directory.Exists(path))
+    //{
+    //  Directory.CreateDirectory(path);
+    //}
+    File.WriteAllText(ID + ".csv", now + Environment.NewLine);
     Console.ReadLine();
 
     
@@ -85,10 +85,10 @@ public class BingoGame
           changedSquareOnBoard = result;
         playerWhoMarked = message.player.name;
         goalMarked = message.square.name;
-        string path = "C://HKBingoTracker//" + ID;
+        //string path = "C://HKBingoTracker//" + ID;
         string now = DateTime.Now.ToString("hh:mm:ss");
         string createText = now + "," + playerWhoMarked + "," + goalMarked + "," + changedSquareOnBoard + Environment.NewLine;
-        File.AppendAllText(path + ".csv", createText);
+        File.AppendAllText(ID + ".csv", createText);
 
         //Console.WriteLine($"{now}, {playerWhoMarked}, {goalMarked}");
 
