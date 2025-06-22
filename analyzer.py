@@ -1,6 +1,7 @@
 import pandas as pd
 from pathlib import Path
 import os
+from datetime import datetime, date
 dir = 'C://HKBingoTracker'
 playerList = []
 row1 = range(1, 6)
@@ -21,8 +22,9 @@ bltr = range(5, 22, 4)
 overall = pd.DataFrame(columns = ["name", "FirstBlood", "GoalsMarked", "GoalsLost", "WinsByLine", "LossesByLine", "WinsByMajority", "LossesByMajority", "WinLoss", "Comeback", "Choke", "TimePlayed", "AvgTTFG"])
 for file in Path(dir).rglob('*.csv'):
     df = pd.read_csv(file, sep = ',', header=None, skiprows=1)
-    starttime = pd.read_csv(file, rows=1, header=None, index=False)
-    starttimestring = starttime.to_string()
+    starttime = pd.read_csv(file, nrows=1, header=None)
+    starttimestring = starttime.iloc[0][0]
+    start = datetime.strptime(starttimestring.strip(), '%H:%M:%S').time()
     df.columns = ['Time', 'Player', 'Goal', 'Position']
     names = list(df['Player'].unique())
     if len(names) == 1:
@@ -32,7 +34,6 @@ for file in Path(dir).rglob('*.csv'):
      #now we also want to find who won the match
     player1 = names[0]  
     player2 = names[1]
-    otherplayer = []
     def score(x): #score for a given square
         if x in df['Position'].values:
             if df.loc[(df['Position'] == x), 'Player'].iloc[0] == player1:
@@ -73,7 +74,8 @@ for file in Path(dir).rglob('*.csv'):
            playerList.append(name)
         #contributes to playerList
     firstBlood = df['Player'][0] #first to mark a goal
-    timePlayed = df['Time'].iloc[-1] - starttimestring
+    endTime = datetime.strptime(df['Time'].iloc[-1].strip(), '%H:%M:%S').time()
+    timePlayed = datetime.combine(date.min, endTime) - datetime.combine(date.min, start)
     for name in names:
         if name == otherplayer:
             hits = 0    
@@ -84,7 +86,8 @@ for file in Path(dir).rglob('*.csv'):
              firstMarkTime = None
         else:
              mymarks = df.loc[df['Player']==name]
-             firstMarkTime = df['Time'][0]
+             firstMarkstamp = datetime.strptime(df['Time'][0].strip(), '%H:%M:%S').time()
+             firstMarkTime = (datetime.combine(date.min, firstMarkstamp) - datetime.combine(date.min, start)).total_seconds()
         if winner == name or majoritywinner == name:
              winloss = 1
         else:
@@ -112,9 +115,10 @@ for user in playerList:
 grouped['Matches Played'] = matchesplayed
 grouped['GoalsPerGame'] = grouped['GoalsMarked'] / grouped['Matches Played']
 grouped['K/D'] = grouped['GoalsMarked'] / grouped['GoalsLost'].replace(0, 1)
-grouped['Time To First Goal'] = grouped['FirstMarkTime']/grouped['Matches Played']
-print(grouped)
+grouped['Time To First Goal'] = pd.to_timedelta(grouped['FirstMarkTime']/grouped['Matches Played'], unit='s')
+grouped['Time To First Goal'] = grouped['Time To First Goal'].apply(lambda x: f"{int(x.total_seconds() // 60):02d}:{int(x.total_seconds() % 60):02d}")
 
+print(grouped)
 print("Save file?")
 answer = input()
 if answer == "yes":
