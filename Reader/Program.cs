@@ -10,7 +10,7 @@ public class Program
     BingoGame game = new BingoGame();
     game.Init();
     await game.JoinBingoSyncRoom();
-
+    
     
     Console.WriteLine("Press enter to close program");
     Console.ReadLine();
@@ -20,7 +20,7 @@ public class Program
 public class BingoGame
 {
   private readonly BingoSync bingoSync = new BingoSync();
-
+  public static string ID;
  public void Init()
   {
     bingoSync.OnMessageReceived += OnRoomEvent;
@@ -30,7 +30,7 @@ public class BingoGame
   {
 
     Console.WriteLine("Enter Room ID");
-    string ID = Console.ReadLine();
+    ID = Console.ReadLine();
     Console.WriteLine("Enter Room Password");
     string password = Console.ReadLine();
 
@@ -55,13 +55,18 @@ public class BingoGame
       Console.WriteLine("Failed to connect.");
     }
     Console.WriteLine("Press enter when match begins to start timing");
-    string path = @"C://HKBingoTracker//match.csv";
     string now = DateTime.Now.ToString("hh:mm:ss");
-    File.WriteAllText(path, now + Environment.NewLine);
+    string path = @"C://HKBingoTracker";
+    if (!Directory.Exists(path))
+    {
+      Directory.CreateDirectory(path);
+    }
+    File.WriteAllText(path + "/" + ID + ".csv", now + Environment.NewLine);
     Console.ReadLine();
 
     
   }
+
   private void OnRoomEvent(SocketMessage message)
   {
 
@@ -80,19 +85,11 @@ public class BingoGame
           changedSquareOnBoard = result;
         playerWhoMarked = message.player.name;
         goalMarked = message.square.name;
-        string path = @"C://HKBingoTracker//match.csv";
+        string path = "C://HKBingoTracker//" + ID;
         string now = DateTime.Now.ToString("hh:mm:ss");
-        if (!File.Exists(path))
-        {
-          string createText = now + "," + playerWhoMarked + "," + goalMarked + "," + changedSquareOnBoard + Environment.NewLine;
-          File.WriteAllText(path, createText);
-        }
-        else
-        {
-          string createText = now + "," + playerWhoMarked + "," + goalMarked + "," + changedSquareOnBoard + Environment.NewLine;
-          File.AppendAllText(path, createText);
-        }
-        
+        string createText = now + "," + playerWhoMarked + "," + goalMarked + "," + changedSquareOnBoard + Environment.NewLine;
+        File.AppendAllText(path + ".csv", createText);
+
         //Console.WriteLine($"{now}, {playerWhoMarked}, {goalMarked}");
 
         break;
